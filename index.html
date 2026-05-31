@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpe - Smart Solution, Powerful Future</title>
+    <meta name="description" content="All-in-one suite of web tools for CSC, VLE, students, and document processing in India. Free Aadhaar cropper, NSDL PAN resizer, passport photo maker, resume biodata creator, and GST calculators.">
+    <link rel="stylesheet" href="styles.css?v=11">
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- Lucide Icons for beautiful design -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Force correct vertical sidebar layout and override any cached external CSS files */
+        .app-container {
+            display: block !important;
+            min-height: 100vh !important;
+            position: relative !important;
+        }
+        .sidebar {
+            width: 260px !important;
+            min-width: 260px !important;
+            height: 100vh !important;
+            background-color: rgba(17, 24, 39, 0.9) !important; /* glassmorphism bg-white/90 equivalent for dark theme */
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border-right: 1px solid rgba(99, 102, 241, 0.15) !important;
+            border-bottom: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+            padding: 16px 20px 20px 20px !important; /* Reduced padding from 24px to reduce top space */
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 100 !important;
+            box-sizing: border-box !important;
+            flex-shrink: 0 !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; /* shadow-2xl */
+            overflow: hidden !important; /* FIXED: hide outer sidebar scrollbar to prevent scroll locking */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        [data-theme="light"] .sidebar {
+            background-color: rgba(255, 255, 255, 0.9) !important; /* bg-white/90 */
+            border-right: 1px solid #ede9fe !important; /* border-violet-100 */
+        }
+        .logo-container {
+            margin-bottom: 16px !important; /* Reduced from 32px to save top space */
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            transition: margin-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .sidebar-collapse-btn {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-muted) !important;
+            border-radius: var(--radius-sm) !important;
+            width: 28px !important;
+            height: 28px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            margin-left: auto !important;
+            transition: var(--transition) !important;
+        }
+        .nav-category-header {
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.5px !important;
+            color: var(--text-muted) !important;
+            margin: 12px 0 6px 12px !important; /* Reduced from 20px to save top space */
+            opacity: 0.6 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            transition: opacity 0.3s ease, margin 0.3s ease, height 0.3s ease !important;
+        }
+        .nav-links {
+            list-style: none !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important; /* Reduced from 8px for vertical compactness */
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            flex-grow: 1 !important;
+            justify-content: flex-start !important;
+            padding: 0 !important;
+            scrollbar-width: thin !important;
+        }
+        .nav-item {
+            padding: 10px 14px !important; /* Reduced from 12px 16px to save height */
+            font-size: 14px !important;
+            white-space: nowrap !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
+            border-left: 3px solid transparent !important;
+        }
+        .nav-item:hover {
+            transform: translateX(4px) !important;
+            background-color: rgba(99, 102, 241, 0.08) !important;
+            color: var(--primary) !important;
+        }
+        .nav-item.active {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 20px -2px rgba(99, 102, 241, 0.5), 0 0 10px rgba(168, 85, 247, 0.3) !important;
+            border-left: 3px solid #ffffff !important;
+        }
+        .nav-item.active:hover {
+            transform: translateX(4px) !important;
+            box-shadow: 0 6px 24px -2px rgba(99, 102, 241, 0.6), 0 0 15px rgba(168, 85, 247, 0.4) !important;
+        }
+        .nav-item svg, .nav-item i {
+            width: 20px !important;
+            height: 20px !important;
+            flex-shrink: 0 !important;
+            transition: transform 0.2s ease !important;
+        }
+        .nav-item:hover svg, .nav-item:hover i {
+            transform: scale(1.1) !important;
+        }
+        .sidebar-footer {
+            padding-top: 12px !important; /* Reduced from 16px */
+            border-top: 1px solid var(--border-color) !important;
+            margin-top: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important; /* Reduced from 12px */
+            flex-shrink: 0 !important;
+            transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .theme-toggle-btn {
+            width: 100% !important;
+            white-space: nowrap !important;
+            transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .main-content {
+            margin-left: 260px !important;
+            width: calc(100% - 260px) !important; /* FIXED: set explicit width to prevent content overflowing left behind sidebar */
+            max-width: calc(100% - 260px) !important; /* FIXED: set explicit max-width */
+            padding: 12px 16px 24px 16px !important; /* Reduced top/side padding to maximize panel width */
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-sizing: border-box !important;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Collapsed Sidebar Styles */
+        #sidebar.collapsed {
+            width: 76px !important;
+            min-width: 76px !important;
+            padding: 16px 12px !important; /* Reduced from 24px */
+        }
+        #sidebar.collapsed .logo-container {
+            flex-direction: column !important;
+            gap: 12px !important;
+            align-items: center !important;
+            margin-bottom: 16px !important; /* Reduced from 24px */
+        }
+        #sidebar.collapsed .logo-text,
+        #sidebar.collapsed .nav-item span,
+        #sidebar.collapsed .theme-toggle-btn span {
+            display: none !important;
+        }
+        #sidebar.collapsed .sidebar-collapse-btn {
+            margin-left: 0 !important;
+            margin-top: 12px !important;
+            transform: rotate(180deg) !important;
+        }
+        #sidebar.collapsed .nav-category-header {
+            height: 1px !important;
+            background: var(--border-color) !important;
+            margin: 10px 0 6px 0 !important; /* Reduced from 16px */
+            font-size: 0 !important;
+            overflow: hidden !important;
+            opacity: 0.5 !important;
+        }
+        #sidebar.collapsed .nav-item {
+            padding: 12px 13px !important;
+            justify-content: center !important;
+        }
+        #sidebar.collapsed .nav-item:hover {
+            transform: scale(1.05) !important;
+        }
+        #sidebar.collapsed ~ .main-content {
+            margin-left: 76px !important;
+            width: calc(100% - 76px) !important;
+            max-width: calc(100% - 76px) !important;
+        }
+        
+        /* Balanced 3-column form rows for 3 fields to prevent awkward vertical wrapping */
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* Mobile styling overrides removed here so styles.css drawer menu media queries control mobile cleanly */
+
+
+        /* Profile Page Styles */
+        .profile-header-card {
+            background: var(--bg-card) !important;
+            backdrop-filter: blur(24px) !important;
+            -webkit-backdrop-filter: blur(24px) !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: var(--radius-lg) !important;
+            padding: 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 28px !important;
+            box-shadow: var(--shadow-lg) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transition: var(--transition) !important;
+        }
+        .profile-avatar-wrapper {
+            position: relative !important;
+            flex-shrink: 0 !important;
+        }
+        .profile-avatar-wrapper img {
+            width: 110px !important;
+            height: 110px !important;
+            border-radius: 50% !important;
+            object-fit: cover !important;
+            border: 4px solid var(--primary) !important;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+            background: var(--bg-secondary) !important;
+            transition: var(--transition) !important;
+        }
+        .profile-avatar-wrapper label {
+            position: absolute !important;
+            bottom: 0 !important;
+            right: 0 !important;
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            width: 32px !important;
+            height: 32px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            border: 2px solid var(--bg-secondary) !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: var(--transition) !important;
+        }
+        .profile-avatar-wrapper label:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4) !important;
+        }
+        .profile-header-info {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        .btn-secondary.active {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+        }
+    </style>
+    <script>
+        // Force clear any cached body/root zoom settings dynamically on page load
+        document.documentElement.style.zoom = '1';
+        document.body.style.zoom = '1';
+    </script>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                <i data-lucide="menu"></i>
+            </button>
+            <span class="mobile-logo-text" style="display: flex; align-items: center; gap: 8px;"><img src="logo.png" style="width: 24px; height: 24px; object-fit: contain; background: white; padding: 2px; border-radius: 4px;" alt="Logo">SmartSpe</span>
+            <div style="width: 24px;"></div>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <img class="logo-icon" src="logo.png" style="background: white; padding: 2px; object-fit: contain;" alt="Logo">
+                <div class="logo-details" style="display: flex; flex-direction: column; gap: 2px;">
+                    <span class="logo-text">SmartSpe</span>
+                    <span class="sidebar-welcome-note" id="sidebar-welcome-note" style="font-size: 10px; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 145px; display: block;">Welcome, VLE Partner</span>
+                </div>
+                <button class="sidebar-collapse-btn" id="sidebar-collapse-btn" title="Collapse Sidebar">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+            </div>
+            
+            <nav class="nav-links">
+                <!-- Group 1: Core Dashboard -->
+                <div class="nav-category-header">Core Dashboard</div>
+                <a class="nav-item active" data-target="dashboard" title="Dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" data-target="profile" title="My Profile">
+                    <i data-lucide="user"></i>
+                    <span>My Profile</span>
+                </a>
+                
+                <!-- Group 2: Document Tools -->
+                <div class="nav-category-header">Document Tools</div>
+                <a class="nav-item" data-target="aadhaar" title="Aadhaar / Voter Print">
+                    <i data-lucide="crop"></i>
+                    <span>Aadhaar / Voter Print</span>
+                </a>
+                <a class="nav-item" data-target="biodata" title="Resume & Biodata">
+                    <i data-lucide="file-text"></i>
+                    <span>Resume & Biodata</span>
+                </a>
+                
+                <!-- Group 3: Office & Finance -->
+                <div class="nav-category-header">Office & Finance</div>
+                <a class="nav-item" data-target="csp" title="CSP Ledger & Dues">
+                    <i data-lucide="wallet"></i>
+                    <span>CSP Ledger & Dues</span>
+                </a>
+                <a class="nav-item" data-target="reports" title="Reports & Statements">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span>Reports & Statements</span>
+                </a>
+                
+                <!-- Group 4: System Tools -->
+                <div class="nav-category-header">System Tools</div>
+                <a class="nav-item" data-target="services" title="Service Management">
+                    <i data-lucide="briefcase"></i>
+                    <span>Service Management</span>
+                </a>
+                <a class="nav-item" data-target="staff" title="Staff Management">
+                    <i data-lucide="users"></i>
+                    <span>Staff Management</span>
+                </a>
+                <a class="nav-item" data-target="admin" title="Admin Control Panel">
+                    <i data-lucide="settings"></i>
+                    <span>Admin Control Panel</span>
+                </a>
+                <a class="nav-item" data-target="age" title="Age Calculator">
+                    <i data-lucide="calendar"></i>
+                    <span>Age Calculator</span>
+                </a>
+                
+                <!-- Group 5: Help & Support -->
+                <div class="nav-category-header">Help & Support</div>
+                <a class="nav-item" href="tel:8432163308" title="Call Support">
+                    <i data-lucide="phone"></i>
+                    <span>+91 84321 63308</span>
+                </a>
+                <a class="nav-item" href="mailto:help@smartspe.in" title="Email Support">
+                    <i data-lucide="mail"></i>
+                    <span>help@smartspe.in</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Theme">
+                    <i data-lucide="sun" id="theme-icon"></i>
+                    <span id="theme-text">Light Mode</span>
+                </button>
+                <button class="theme-toggle-btn" id="sidebar-logout-btn" title="Switch User / Log Out" style="background: rgba(244, 63, 94, 0.1); color: var(--accent);">
+                    <i data-lucide="log-out"></i>
+                    <span>Switch User</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main class="main-content">
+            
+
+
+            <!-- 1. DASHBOARD HUB PANEL -->
+            <section class="tool-panel active" id="panel-dashboard">
+                
+                <!-- Dashboard stats row -->
+                <div class="stats-row-wrapper">
+                    <!-- Today's Earnings -->
+                    <div class="metric-card" style="border-left: 4px solid var(--success);">
+                        <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="sun" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-today-earnings" style="font-size: 24px; font-weight: 800; color: var(--success);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Today's Earnings</div>
+                        </div>
+                    </div>
+                    <!-- Monthly Income -->
+                    <div class="metric-card" style="border-left: 4px solid var(--success);">
+                        <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="calendar" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-month-earnings" style="font-size: 24px; font-weight: 800; color: var(--success);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Monthly Income</div>
+                        </div>
+                    </div>
+                    <!-- Total Earnings -->
+                    <div class="metric-card" style="border-left: 4px solid var(--success);">
+                        <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="trending-up" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-income-stat" style="font-size: 24px; font-weight: 800; color: var(--success);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Total Earnings</div>
+                        </div>
+                    </div>
+                    <!-- Pending Dues -->
+                    <div class="metric-card" style="border-left: 4px solid var(--warning);">
+                        <div style="background: rgba(245, 158, 11, 0.1); color: var(--warning); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="alert-circle" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-dues-stat" style="font-size: 24px; font-weight: 800; color: var(--warning);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Pending Dues</div>
+                        </div>
+                    </div>
+
+                    <!-- CSC Wallet Balance -->
+                    <div class="metric-card" style="border-left: 4px solid var(--primary);">
+                        <div style="background: rgba(99, 102, 241, 0.1); color: var(--primary); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="wallet" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-wallet-balance" style="font-size: 24px; font-weight: 800; color: var(--primary);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">CSC Wallet Balance</div>
+                        </div>
+                    </div>
+                    <!-- Shop Wallet Income -->
+                    <div class="metric-card" style="border-left: 4px solid var(--success);">
+                        <div style="background: rgba(16, 185, 129, 0.1); color: var(--success); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="arrow-up-right" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-shop-income" style="font-size: 24px; font-weight: 800; color: var(--success);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Wallet Income</div>
+                        </div>
+                    </div>
+                    <!-- Shop Total Expense -->
+                    <div class="metric-card" style="border-left: 4px solid var(--danger);">
+                        <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="arrow-down-left" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-shop-expense" style="font-size: 24px; font-weight: 800; color: var(--danger);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Total Expense</div>
+                        </div>
+                    </div>
+                    <!-- Shop Net Balance -->
+                    <div class="metric-card" style="border-left: 4px solid var(--primary);">
+                        <div style="background: rgba(99, 102, 241, 0.1); color: var(--primary); width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="scale" style="width: 24px; height: 24px;"></i>
+                        </div>
+                        <div>
+                            <div id="db-shop-balance" style="font-size: 24px; font-weight: 800; color: var(--primary);">₹0.00</div>
+                            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Net Balance</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="dashboard-main-row">
+                    <!-- Quick Entry Console Placeholder -->
+                    <div id="quick-entry-placeholder">
+                        <div class="quick-entry-hub">
+                        <div class="config-card" style="padding: 24px; background-color: var(--bg-secondary); box-shadow: var(--shadow-lg);">
+                            <!-- Form Console -->
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 6px;">
+                                        <h2 style="font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text-main);">
+                                            <span style="background: rgba(245, 158, 11, 0.15); color: var(--warning); padding: 6px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
+                                                <i data-lucide="zap" style="fill: var(--warning); width: 18px; height: 18px;"></i>
+                                            </span>
+                                            Quick Entry Panel
+                                        </h2>
+                                        <div class="quick-tabs-container">
+                                            <button id="q-btn-tx-tab" class="quick-tab-btn active">⚡ Cash Tx</button>
+                                            <button id="q-btn-cust-tab" class="quick-tab-btn">👥 Customer Bill</button>
+                                            <button id="q-btn-search-tab" class="quick-tab-btn">🔍 Search & Dues</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- TAB 1: Quick Cash Transaction -->
+                                    <div id="q-panel-tx" style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div class="form-row-3" style="gap: 12px;">
+                                            <div class="form-group">
+                                                <label for="q-tx-type">Tx Type</label>
+                                                <select id="q-tx-type" style="padding: 8px 12px; font-size: 13px;">
+                                                    <option value="income">Income (Cash In)</option>
+                                                    <option value="expense">Expense (Cash Out)</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="q-tx-amount">Amount (₹)</label>
+                                                <input type="number" id="q-tx-amount" min="0" placeholder="0.00" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="q-tx-date">Date</label>
+                                                <input type="date" id="q-tx-date" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                        </div>
+                                        <div class="form-row" style="gap: 12px;">
+                                            <div class="form-group">
+                                                <label for="q-tx-category">Category</label>
+                                                <select id="q-tx-category" style="padding: 8px 12px; font-size: 13px;">
+                                                    <option value="Service Charge">Service Charge</option>
+                                                    <option value="CSC Commision">CSC Commission</option>
+                                                    <option value="Staff Salary">Staff Salary</option>
+                                                    <option value="Staff Advance">Staff Advance</option>
+                                                    <option value="Stationery / Paper">Stationery / Paper</option>
+                                                    <option value="Internet / Electricity">Internet / Electricity</option>
+                                                    <option value="Shop Rent">Shop Rent</option>
+                                                    <option value="Other Utility">Other Expenses</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="q-tx-mode">Payment Mode</label>
+                                                <select id="q-tx-mode" style="padding: 8px 12px; font-size: 13px;">
+                                                    <option value="Cash">Cash</option>
+                                                    <option value="UPI / GPay">UPI / GPay</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="q-tx-desc">Notes / Description</label>
+                                            <input type="text" id="q-tx-desc" placeholder="Brief note / description" style="padding: 8px 12px; font-size: 13px;">
+                                        </div>
+                                        <button class="btn-primary" id="q-save-tx-btn" style="padding: 10px 20px; font-size: 13px; margin-top: 6px;"><i data-lucide="check"></i> Save Transaction</button>
+                                    </div>
+
+                                    <!-- TAB 2: Quick Customer Bill & Dues -->
+                                    <div id="q-panel-cust" style="display: none; flex-direction: column; gap: 12px;">
+                                        <div class="form-row-3" style="gap: 12px;">
+                                            <div class="form-group">
+                                                <label for="q-cust-name">Customer Name</label>
+                                                <input type="text" id="q-cust-name" placeholder="Mohan Lal" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="q-cust-phone">Mobile Number</label>
+                                                <input type="text" id="q-cust-phone" placeholder="9876543210" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="q-cust-date">Date</label>
+                                                <input type="date" id="q-cust-date" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="q-cust-address">Address</label>
+                                            <input type="text" id="q-cust-address" placeholder="Village, City, District" style="padding: 8px 12px; font-size: 13px;">
+                                        </div>
+                                        <div class="form-row" style="gap: 12px; grid-template-columns: 1fr 1fr;">
+                                            <div class="form-group">
+                                                <label for="q-cust-service-select">Service Name</label>
+                                                <select id="q-cust-service-select" style="padding: 8px 12px; font-size: 13px;">
+                                                    <!-- Loaded dynamically -->
+                                                </select>
+                                            </div>
+                                            <div class="form-group" id="q-cust-service-manual-group" style="display: none;">
+                                                <label for="q-cust-service-manual">Specify Service Name</label>
+                                                <input type="text" id="q-cust-service-manual" placeholder="E.g., PVC Print" style="padding: 8px 12px; font-size: 13px;">
+                                            </div>
+                                        </div>
+                                         <div class="form-row-3" style="gap: 12px;">
+                                             <div class="form-group">
+                                                 <label for="q-cust-charge">Total Charge (₹)</label>
+                                                 <input type="number" id="q-cust-charge" min="0" placeholder="0.00" style="padding: 8px 12px; font-size: 13px;">
+                                             </div>
+                                             <div class="form-group">
+                                                 <label for="q-cust-paid">Amount Paid (₹)</label>
+                                                 <input type="number" id="q-cust-paid" min="0" placeholder="0.00" style="padding: 8px 12px; font-size: 13px;">
+                                             </div>
+                                             <div class="form-group">
+                                                 <label for="q-cust-work-status">Work Status</label>
+                                                 <select id="q-cust-work-status" style="padding: 8px 12px; font-size: 13px;">
+                                                     <option value="Pending">Work Pending</option>
+                                                     <option value="Processing">Processing</option>
+                                                     <option value="Complete" selected>Complete</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(99, 102, 241, 0.05); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(99, 102, 241, 0.1); font-size: 12px;">
+                                            <span style="color: var(--text-muted);">Margin Profit: <strong id="q-cust-comm-lbl" style="color: var(--success);">₹0.00</strong></span>
+                                            <span style="color: var(--text-muted);">Dues Balance: <strong id="q-cust-dues-lbl" style="color: var(--warning);">₹0.00</strong></span>
+                                        </div>
+                                        <button class="btn-primary" id="q-save-cust-btn" style="padding: 10px 20px; font-size: 13px; margin-top: 6px;"><i data-lucide="check"></i> Save Customer Log</button>
+                                    </div>
+
+                                    <!-- TAB 3: Quick Customer Search & Dues Clearance -->
+                                    <div id="q-panel-search" style="display: none; flex-direction: column; gap: 12px;">
+                                        <div class="form-group">
+                                            <label for="q-search-cust-input">Search Customer by Name or Mobile</label>
+                                            <div style="position: relative; width: 100%;">
+                                                <input type="text" id="q-search-cust-input" placeholder="Enter name or mobile number..." style="padding: 10px 16px 10px 40px; font-size: 13px;">
+                                                <i data-lucide="search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted);"></i>
+                                            </div>
+                                        </div>
+                                        <div id="q-search-results" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; padding-right: 4px; margin-top: 4px;">
+                                            <!-- Match list shown dynamically -->
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    </div>
+
+                    <!-- Official Portal Links Hub -->
+                    <div class="widget-card" style="height: 100%;">
+                        <h3 style="font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+                            <i data-lucide="external-link" style="width: 16px; height: 16px; color: var(--primary);"></i> Official Portal Links
+                        </h3>
+                        <div class="portal-links-grid">
+                            <a href="https://digitalseva.csc.gov.in/" target="_blank" class="portal-btn portal-csc">
+                                <i data-lucide="monitor"></i>
+                                <span>CSC Portal</span>
+                            </a>
+                            <a href="https://myaadhaar.uidai.gov.in/" target="_blank" class="portal-btn portal-uidai">
+                                <i data-lucide="fingerprint"></i>
+                                <span>My Aadhaar</span>
+                            </a>
+                            <a href="https://www.tin-nsdl.com/" target="_blank" class="portal-btn portal-pan">
+                                <i data-lucide="credit-card"></i>
+                                <span>NSDL PAN</span>
+                            </a>
+                            <a href="https://www.gst.gov.in/" target="_blank" class="portal-btn portal-gst">
+                                <i data-lucide="file-check-2"></i>
+                                <span>GST Portal</span>
+                            </a>
+                            <a href="https://www.passportindia.gov.in/" target="_blank" class="portal-btn portal-passport">
+                                <i data-lucide="globe"></i>
+                                <span>Passport Seva</span>
+                            </a>
+                            <a href="https://www.incometax.gov.in/" target="_blank" class="portal-btn portal-tax">
+                                <i data-lucide="landmark"></i>
+                                <span>Income Tax</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tools Cards Grid -->
+                <div class="dashboard-grid" id="dashboard-grid">
+                    <!-- Aadhaar Cropper Card -->
+                    <div class="tool-card" data-launch="aadhaar">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="crop"></i></div>
+                            <span class="tool-badge badge-aadhaar">ID Cropper</span>
+                        </div>
+                        <h3 class="card-title">Aadhaar/Voter Card Printer</h3>
+                        <p class="card-desc">Crop and align the front & back of any ID card (Aadhaar, Voter, Shramik) into a print-ready single ID card layout or A4 sheet with borders.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+                    
+                    <!-- Resume/Biodata Card -->
+                    <div class="tool-card" data-launch="biodata">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="file-text"></i></div>
+                            <span class="tool-badge badge-biodata">Marriage & Job</span>
+                        </div>
+                        <h3 class="card-title">Resume & Marriage Biodata</h3>
+                        <p class="card-desc">Generate professional employment resumes or traditional Indian marriage biodatas with floral borders, horoscopes, and beautiful typography.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+                    
+                    <!-- Age Calculator Card -->
+                    <div class="tool-card" data-launch="age">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="calendar"></i></div>
+                            <span class="tool-badge badge-age">Life Stats</span>
+                        </div>
+                        <h3 class="card-title">Detailed Age Calculator</h3>
+                        <p class="card-desc">Enter Date of Birth to calculate the exact age in years, months, days, minutes. Displays next birthday countdown and interesting life statistics.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+
+                    <!-- CSP Ledger Card -->
+                    <div class="tool-card" data-launch="csp">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="wallet"></i></div>
+                            <span class="tool-badge badge-ledger">Bookkeeping</span>
+                        </div>
+                        <h3 class="card-title">CSP Ledger & Dues</h3>
+                        <p class="card-desc">Track customer data, manage service fees, trace pending dues, and log center income and expenses in a persistent local database.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+
+                    <!-- Reports Card -->
+                    <div class="tool-card" data-launch="reports">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="bar-chart-3"></i></div>
+                            <span class="tool-badge badge-reports">P&L Sheets</span>
+                        </div>
+                        <h3 class="card-title">Reports & Statements</h3>
+                        <p class="card-desc">Generate and print custom date-filtered statements for income/expense ledger transactions, pending customer dues, and center P&L sheets.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+
+                    <!-- Service Management Card -->
+                    <div class="tool-card" data-launch="services">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div class="card-icon"><i data-lucide="briefcase"></i></div>
+                            <span class="tool-badge badge-services">Rates & Comms</span>
+                        </div>
+                        <h3 class="card-title">Service Management</h3>
+                        <p class="card-desc">Manage your digital services list. Customize Government fees, customer service charges, VLE commission margins, and filter by categories.</p>
+                        <div class="card-btn">Open Tool <i data-lucide="arrow-right"></i></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROFILE PANEL -->
+            <section class="tool-panel" id="panel-profile">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="user"></i> My Profile</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="profile-layout" style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Profile Header 🔥 -->
+                    <div class="profile-header-card">
+                        <div style="position: absolute; right: -30px; bottom: -30px; opacity: 0.05; color: var(--primary); transform: rotate(-15deg); pointer-events: none;">
+                            <i data-lucide="user" style="width: 200px; height: 200px;"></i>
+                        </div>
+                        
+                        <!-- Profile Photo Container -->
+                        <div class="profile-avatar-wrapper">
+                            <img id="profile-display-photo" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" alt="Profile">
+                            <label for="profile-photo-upload" title="Change Photo">
+                                <i data-lucide="camera" style="width: 14px; height: 14px;"></i>
+                            </label>
+                            <input type="file" id="profile-photo-upload" accept="image/*">
+                        </div>
+                        
+                        <!-- Profile Header Info -->
+                        <div class="profile-header-info" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <h1 id="profile-display-name" style="font-size: 28px; font-weight: 800; margin: 0; color: var(--text-main);">Aarav Sharma</h1>
+                                <span class="badge badge-primary" id="profile-display-id" style="font-family: monospace; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-sm); letter-spacing: 0.5px; background: rgba(99, 102, 241, 0.15); color: var(--primary); border: 1px solid rgba(99, 102, 241, 0.2);">CSC98765432</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 15px; font-weight: 600;">
+                                    <i data-lucide="store" style="width: 16px; height: 16px; color: var(--primary); flex-shrink: 0;"></i>
+                                    <span id="profile-display-shop">Aarav Digital Center</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 15px; font-weight: 500;">
+                                    <i data-lucide="phone" style="width: 16px; height: 16px; color: var(--primary); flex-shrink: 0;"></i>
+                                    <span id="profile-display-phone">+91 98765 43210</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 15px; font-weight: 500;">
+                                    <i data-lucide="mail" style="width: 16px; height: 16px; color: var(--primary); flex-shrink: 0;"></i>
+                                    <span id="profile-display-email">aarav.csc@gmail.com</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 15px; font-weight: 500;">
+                                    <i data-lucide="map-pin" style="width: 16px; height: 16px; color: var(--primary); flex-shrink: 0;"></i>
+                                    <span id="profile-display-address">Main Market, Jaipur, Rajasthan</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Edit Profile Form Card -->
+                    <div class="config-card" style="box-shadow: var(--shadow-md);">
+                        <h3 style="font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 8px;"><i data-lucide="edit-3"></i> Edit Profile Details</h3>
+                        
+                        <form id="profile-edit-form" style="display: flex; flex-direction: column; gap: 16px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-input-name">Full Name</label>
+                                    <input type="text" id="profile-input-name" placeholder="Aarav Sharma" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-input-id">Retailer ID / CSC ID</label>
+                                    <input type="text" id="profile-input-id" placeholder="CSC98765432" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-input-shop">Shop Name</label>
+                                    <input type="text" id="profile-input-shop" placeholder="Aarav Digital Center" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-input-phone">Mobile Number</label>
+                                    <input type="text" id="profile-input-phone" placeholder="9876543210" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-input-email">Gmail / Email Address</label>
+                                    <input type="email" id="profile-input-email" placeholder="aarav.csc@gmail.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-input-address">Shop Address</label>
+                                    <input type="text" id="profile-input-address" placeholder="Main Market, Jaipur, Rajasthan" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary" style="align-self: flex-start; width: auto; min-width: 180px; padding: 12px 24px; margin-top: 8px;"><i data-lucide="save"></i> Save Profile</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. AADHAAR & VOTER CARD CROPPER -->
+            <section class="tool-panel" id="panel-aadhaar">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="crop"></i> Aadhaar & Voter Card Print Tool</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="tool-layout">
+                    <div class="config-card">
+                        <h3>1. Upload ID Sides</h3>
+                        <p style="font-size: 13px; color: var(--text-muted);">Upload front and back images. They will be formatted side-by-side inside standard print margins.</p>
+                        
+                        <div class="form-group">
+                            <label>Card Front Side</label>
+                            <div class="upload-zone" id="aadhaar-front-zone">
+                                <i data-lucide="image" class="upload-icon"></i>
+                                <span class="upload-text">Drag & drop or Click to upload front</span>
+                                <input type="file" id="aadhaar-front" accept="image/*">
+                                <span class="file-preview-name" id="aadhaar-front-name"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Card Back Side</label>
+                            <div class="upload-zone" id="aadhaar-back-zone">
+                                <i data-lucide="image" class="upload-icon"></i>
+                                <span class="upload-text">Drag & drop or Click to upload back</span>
+                                <input type="file" id="aadhaar-back" accept="image/*">
+                                <span class="file-preview-name" id="aadhaar-back-name"></span>
+                            </div>
+                        </div>
+
+                        <h3>2. Adjust Layout</h3>
+                        <div class="form-group">
+                            <label for="aadhaar-layout-type">Print Style Layout</label>
+                            <select id="aadhaar-layout-type">
+                                <option value="id-card">Standard ID Card (8.5 x 5.5 cm side-by-side)</option>
+                                <option value="a4-stacked">A4 Document Stacked (Front on Top, Back on Bottom)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Layout Scale</label>
+                            <div class="slider-group">
+                                <input type="range" id="aadhaar-scale" min="50" max="150" value="100">
+                                <span class="slider-val" id="aadhaar-scale-val">100%</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Image Contrast</label>
+                            <div class="slider-group">
+                                <input type="range" id="aadhaar-contrast" min="50" max="150" value="100">
+                                <span class="slider-val" id="aadhaar-contrast-val">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="preview-card">
+                        <h3>Print Layout Preview</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="aadhaar-canvas" width="600" height="400"></canvas>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-secondary" id="download-aadhaar"><i data-lucide="download"></i> Download Image</button>
+                            <button class="btn-primary" id="print-aadhaar"><i data-lucide="printer"></i> Print ID Sheet</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. RESUME & BIODATA BUILDER -->
+            <section class="tool-panel" id="panel-biodata">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="file-text"></i> Resume & Marriage Biodata Builder</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="tool-layout" style="grid-template-columns: 1.1fr 0.9fr;">
+                    <div class="config-card">
+                        <h3>1. Choose Format</h3>
+                        <div class="form-group">
+                            <label for="biodata-template-type">Template Design Style</label>
+                            <select id="biodata-template-type">
+                                <option value="traditional">Traditional Indian Marriage Biodata</option>
+                                <option value="modern">Modern Professional Resume (Sidebar Pane)</option>
+                                <option value="classic">Classic Minimalist Resume</option>
+                            </select>
+                        </div>
+
+                        <h3>2. Enter Details</h3>
+                        <div class="form-tabs">
+                            <button class="form-tab active" data-tab="biodata-tab-personal">Personal Info</button>
+                            <button class="form-tab" data-tab="biodata-tab-family">Family / Horoscope</button>
+                            <button class="form-tab" data-tab="biodata-tab-edu">Education & Job</button>
+                            <button class="form-tab" data-tab="biodata-tab-skills">Skills & Extra</button>
+                        </div>
+
+                        <!-- Personal Info Tab -->
+                        <div class="tab-content" id="biodata-tab-personal" style="display: flex; flex-direction: column; gap: 16px; margin-top: 15px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="bio-fullname" placeholder="E.g., Ramesh Kumar">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date of Birth</label>
+                                    <input type="date" id="bio-dob">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" id="bio-email" placeholder="ramesh@gmail.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Mobile Number</label>
+                                    <input type="text" id="bio-phone" placeholder="9876543210">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Permanent Address</label>
+                                <textarea id="bio-address" rows="3" placeholder="Village, Post Office, City, Pin Code"></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Height</label>
+                                    <input type="text" id="bio-height" placeholder="E.g., 5 ft 8 in">
+                                </div>
+                                <div class="form-group">
+                                    <label>Complexion / Caste</label>
+                                    <input type="text" id="bio-complexion" placeholder="E.g., Fair / Sharma">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Family / Horoscope Tab (Marriage specific) -->
+                        <div class="tab-content" id="biodata-tab-family" style="display: none; flex-direction: column; gap: 16px; margin-top: 15px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Father's Name</label>
+                                    <input type="text" id="bio-father" placeholder="Father's Full Name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Father's Occupation</label>
+                                    <input type="text" id="bio-father-occ" placeholder="E.g., Farmer, Business">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Mother's Name</label>
+                                    <input type="text" id="bio-mother" placeholder="Mother's Full Name">
+                                </div>
+                                <div class="form-group">
+                                    <label>Siblings</label>
+                                    <input type="text" id="bio-siblings" placeholder="E.g., 1 Brother, 1 Sister">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Time of Birth</label>
+                                    <input type="text" id="bio-tob" placeholder="E.g., 04:30 AM">
+                                </div>
+                                <div class="form-group">
+                                    <label>Place of Birth</label>
+                                    <input type="text" id="bio-pob" placeholder="E.g., Jaipur, Rajasthan">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Gotra / Rashi</label>
+                                    <input type="text" id="bio-gotra" placeholder="E.g., Kaushik / Mesh">
+                                </div>
+                                <div class="form-group">
+                                    <label>Manglik Status</label>
+                                    <select id="bio-manglik">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="Anshik (Partial)">Anshik (Partial)</option>
+                                        <option value="Don't Know">Don't Know</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Education Tab -->
+                        <div class="tab-content" id="biodata-tab-edu" style="display: none; flex-direction: column; gap: 16px; margin-top: 15px;">
+                            <div class="form-group">
+                                <label>Highest Qualification</label>
+                                <input type="text" id="bio-education" placeholder="E.g., B.Tech in Computer Science">
+                            </div>
+                            <div class="form-group">
+                                <label>School / University Name</label>
+                                <input type="text" id="bio-college" placeholder="E.g., Rajasthan Technical University">
+                            </div>
+                            <div class="form-group">
+                                <label>Current Employment / Job Title</label>
+                                <input type="text" id="bio-occupation" placeholder="E.g., Software Engineer at TCS">
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly / Annual Income</label>
+                                <input type="text" id="bio-income" placeholder="E.g., 8 Lakhs Per Annum">
+                            </div>
+                        </div>
+
+                        <!-- Skills / Work History Tab -->
+                        <div class="tab-content" id="biodata-tab-skills" style="display: none; flex-direction: column; gap: 16px; margin-top: 15px;">
+                            <div class="form-group">
+                                <label>Skills (Comma separated, for resume)</label>
+                                <input type="text" id="bio-skills" placeholder="E.g., Python, Typing, Customer Support, Excel">
+                            </div>
+                            <div class="form-group">
+                                <label>Brief Work Experience (or Hobbies for Biodata)</label>
+                                <textarea id="bio-experience" rows="4" placeholder="E.g., 2 Years experience as CSC Operator handling documentation..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Live preview block (Screen representation of print sheet) -->
+                        <div style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 20px; overflow-y: auto; max-height: 480px; box-shadow: var(--shadow-md);">
+                            <h3 style="margin-bottom: 12px; font-size: 16px;">Live Paper Preview</h3>
+                            
+                            <div id="screen-preview-container" style="background-color: white; transform: scale(0.9); transform-origin: top center;">
+                                <!-- Dynamic styled output injected here via js -->
+                            </div>
+                        </div>
+                        
+                        <button class="btn-primary" id="print-biodata"><i data-lucide="printer"></i> Print / Save as PDF</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. DETAILED AGE CALCULATOR -->
+            <section class="tool-panel" id="panel-age">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="calendar"></i> Detailed Age Calculator</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="tool-layout">
+                    <div class="config-card">
+                        <h3>Enter Birth Date</h3>
+                        <div class="form-group">
+                            <label for="age-dob">Date of Birth (DOB)</label>
+                            <input type="date" id="age-dob-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="age-target">Calculate Age As Of</label>
+                            <input type="date" id="age-target-input">
+                        </div>
+                        
+                        <button class="btn-primary" id="calculate-age-btn" style="margin-top: 12px;"><i data-lucide="play-circle"></i> Compute Age</button>
+                    </div>
+
+                    <div class="config-card" style="justify-content: start;">
+                        <h3>Age Calculation Results</h3>
+                        
+                        <div class="age-result-grid">
+                            <div class="age-result-card">
+                                <div class="age-val" id="age-years">0</div>
+                                <div class="age-lbl">Years</div>
+                            </div>
+                            <div class="age-result-card">
+                                <div class="age-val" id="age-months">0</div>
+                                <div class="age-lbl">Months</div>
+                            </div>
+                            <div class="age-result-card">
+                                <div class="age-val" id="age-days">0</div>
+                                <div class="age-lbl">Days</div>
+                            </div>
+                        </div>
+
+                        <div class="age-extra-stats">
+                            <div class="age-stat-row">
+                                <span>Next Birthday In:</span>
+                                <span id="age-next-bday" style="color: var(--primary); font-weight: 700;">-</span>
+                            </div>
+                            <div class="age-stat-row">
+                                <span>Total Months Lived:</span>
+                                <span id="age-tot-months">-</span>
+                            </div>
+                            <div class="age-stat-row">
+                                <span>Total Weeks Lived:</span>
+                                <span id="age-tot-weeks">-</span>
+                            </div>
+                            <div class="age-stat-row">
+                                <span>Total Days Lived:</span>
+                                <span id="age-tot-days">-</span>
+                            </div>
+                            <div class="age-stat-row">
+                                <span>Total Hours Lived:</span>
+                                <span id="age-tot-hours">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- 8. CSP LEDGER & CUSTOMER HUB -->
+            <section class="tool-panel" id="panel-csp">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="wallet"></i> CSP Manager & Ledger</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <!-- Internal tabs for Ledger, Customer logs and Dues -->
+                <div class="form-tabs" style="margin-bottom: 20px;">
+                    <button class="form-tab active" data-tab="csp-tab-ledger">Income & Expense Ledger</button>
+                    <button class="form-tab" data-tab="csp-tab-customers">Customer Directory & Dues</button>
+                    <button class="form-tab" data-tab="csp-tab-services">Services & Rates</button>
+                    <button class="form-tab" data-tab="csp-tab-wallet">CSC Wallet Manager</button>
+                </div>
+
+                <!-- TAB 1: Ledger -->
+                <div class="tab-content" id="csp-tab-ledger" style="display: flex; flex-direction: column; gap: 24px;">
+                    <div class="age-result-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 0;">
+                        <div class="age-result-card" style="border-left: 5px solid var(--success);">
+                            <div class="age-val" id="ledger-income-stat" style="color: var(--success); -webkit-text-fill-color: var(--success);">₹0.00</div>
+                            <div class="age-lbl">Total Income</div>
+                        </div>
+                        <div class="age-result-card" style="border-left: 5px solid var(--danger);">
+                            <div class="age-val" id="ledger-expense-stat" style="color: var(--danger); -webkit-text-fill-color: var(--danger);">₹0.00</div>
+                            <div class="age-lbl">Total Expense</div>
+                        </div>
+                        <div class="age-result-card" style="border-left: 5px solid var(--primary);">
+                            <div class="age-val" id="ledger-balance-stat" style="color: var(--primary); -webkit-text-fill-color: var(--primary);">₹0.00</div>
+                            <div class="age-lbl">Net Balance</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-layout">
+                        <div class="config-card">
+                            <h3>Log New Transaction</h3>
+                            <div class="form-group">
+                                <label for="tx-type">Transaction Type</label>
+                                <select id="tx-type">
+                                    <option value="income">Income (Earnings)</option>
+                                    <option value="expense">Expense (Spendings)</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx-amount">Amount (₹)</label>
+                                    <input type="number" id="tx-amount" min="0" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-date">Transaction Date</label>
+                                    <input type="date" id="tx-date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-mode">Payment Mode</label>
+                                    <select id="tx-mode">
+                                        <option value="Cash">Cash</option>
+                                        <option value="UPI / GPay">UPI / GPay</option>
+                                        <option value="Net Banking">Net Banking</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-category">Category</label>
+                                    <select id="tx-category">
+                                        <option value="Service Charge">Customer Service Charge</option>
+                                        <option value="CSC Commision">CSC Portal Commission</option>
+                                        <option value="Internet / Electricity">Internet / Electricity</option>
+                                        <option value="Shop Rent">Shop Rent</option>
+                                        <option value="Stationery / Paper">Stationery / Paper</option>
+                                        <option value="Staff Salary">Staff Salary</option>
+                                        <option value="Staff Advance">Staff Advance</option>
+                                        <option value="Other Utility">Other Expenses</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tx-desc">Description / Notes</label>
+                                <input type="text" id="tx-desc" placeholder="E.g., Passport photo print charge from Ramesh">
+                            </div>
+                            <button class="btn-primary" id="save-tx-btn"><i data-lucide="plus-circle"></i> Save Transaction</button>
+                        </div>
+
+                        <div class="config-card" style="grid-column: span 1; overflow-x: auto;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                                <h3>Recent Operations Ledger</h3>
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <input type="text" id="search-ledger-input" placeholder="Search ledger..." style="width: 120px; padding: 6px 10px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                    <input type="date" id="ledger-start-date" style="padding: 5px 8px; font-size: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                    <span style="font-size: 11px; color: var(--text-muted);">to</span>
+                                    <input type="date" id="ledger-end-date" style="padding: 5px 8px; font-size: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                </div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted);">
+                                        <th style="padding: 10px 5px;">Date</th>
+                                        <th style="padding: 10px 5px;">Type</th>
+                                        <th style="padding: 10px 5px;">Category</th>
+                                        <th style="padding: 10px 5px;">Mode</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Amount</th>
+                                        <th style="padding: 10px 5px; text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ledger-table-body">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Customers & Dues -->
+                <div class="tab-content" id="csp-tab-customers" style="display: none; flex-direction: column; gap: 24px;">
+                    <div class="age-result-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0;">
+                        <div class="age-result-card" style="border-left: 5px solid var(--primary);">
+                            <div class="age-val" id="cust-total-stat">0</div>
+                            <div class="age-lbl">Total Logged Customers</div>
+                        </div>
+                        <div class="age-result-card" style="border-left: 5px solid var(--warning);">
+                            <div class="age-val" id="cust-dues-stat" style="color: var(--warning); -webkit-text-fill-color: var(--warning);">₹0.00</div>
+                            <div class="age-lbl">Pending Dues (Total)</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-layout">
+                        <div class="config-card">
+                            <h3>Add Customer Record</h3>
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label for="cust-name">Customer Name</label>
+                                    <input type="text" id="cust-name" placeholder="E.g., Mohan Lal">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-phone">Mobile Number</label>
+                                    <input type="text" id="cust-phone" placeholder="10-digit Mobile">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-date">Record Date</label>
+                                    <input type="date" id="cust-date">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cust-address">Address</label>
+                                <input type="text" id="cust-address" placeholder="Village, City, District">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cust-service-select">Service Name</label>
+                                    <select id="cust-service-select">
+                                        <!-- Will be loaded dynamically -->
+                                    </select>
+                                </div>
+                                <div class="form-group" id="cust-service-manual-group" style="display: none;">
+                                    <label for="cust-service-manual">Specify Service Name</label>
+                                    <input type="text" id="cust-service-manual" placeholder="E.g., Birth Certificate">
+                                </div>
+                            </div>
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label for="cust-charge">Total Fee Charged (₹)</label>
+                                    <input type="number" id="cust-charge" min="0" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-paid">Amount Paid (₹)</label>
+                                    <input type="number" id="cust-paid" min="0" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cust-work-status">Work Status</label>
+                                    <select id="cust-work-status">
+                                        <option value="Pending">Work Pending</option>
+                                        <option value="Processing">Processing</option>
+                                        <option value="Complete" selected>Complete</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(99, 102, 241, 0.05); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(99, 102, 241, 0.1);">
+                                <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Auto Commission: <strong id="cust-comm-calc-lbl" style="color: var(--success);">₹0.00</strong></span>
+                                <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Calculated Dues: <strong id="cust-dues-calc-lbl" style="color: var(--warning);">₹0.00</strong></span>
+                            </div>
+                            <button class="btn-primary" id="save-cust-btn"><i data-lucide="user-plus"></i> Save Customer Log</button>
+                        </div>
+
+                        <div class="config-card" style="grid-column: span 1; overflow-x: auto;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                                <h3>Customer Directory</h3>
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <input type="text" id="search-customers-input" placeholder="Search name or mobile..." style="width: 135px; padding: 6px 10px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                    <input type="date" id="cust-start-date" style="padding: 5px 8px; font-size: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                    <span style="font-size: 11px; color: var(--text-muted);">to</span>
+                                    <input type="date" id="cust-end-date" style="padding: 5px 8px; font-size: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                </div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted);">
+                                        <th style="padding: 10px 5px;">Customer Details</th>
+                                        <th style="padding: 10px 5px;">Service</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Fee</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Paid</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Dues</th>
+                                        <th style="padding: 10px 5px; text-align: center;">Status</th>
+                                        <th style="padding: 10px 5px; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customer-table-body">
+                                    <!-- Dynamic customer rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Services & Rates -->
+                <div class="tab-content" id="csp-tab-services" style="display: none; flex-direction: column; gap: 24px;">
+                    <div class="services-filter-row">
+                        <div class="category-pills" id="csp-category-pills">
+                            <button class="category-pill active" data-category="all">All</button>
+                            <button class="category-pill" data-category="Government">Government</button>
+                            <button class="category-pill" data-category="Banking">Banking</button>
+                            <button class="category-pill" data-category="Insurance">Insurance</button>
+                            <button class="category-pill" data-category="Recharge">Recharge</button>
+                        </div>
+                        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="csp-search-services-input" placeholder="Search services..." style="padding: 8px 16px; font-size: 13px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-main); width: 180px;">
+                            <button class="btn-primary" id="csp-add-service-btn" style="padding: 8px 16px; font-size: 13px;"><i data-lucide="plus-circle" style="width: 14px; height: 14px; margin-right: 4px;"></i> Add Service</button>
+                            <button class="btn-secondary" id="csp-services-reset-btn" style="padding: 8px 16px; font-size: 13px;"><i data-lucide="rotate-ccw" style="width: 14px; height: 14px; margin-right: 4px;"></i> Reset Defaults</button>
+                        </div>
+                    </div>
+
+                    <div class="services-grid-wrapper" id="csp-services-cards-grid">
+                        <!-- Cards will render here -->
+                    </div>
+                </div>
+
+                <!-- TAB 4: CSC Wallet Manager -->
+                <div class="tab-content" id="csp-tab-wallet" style="display: none; flex-direction: column; gap: 24px;">
+                    <div class="age-result-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 0; gap: 16px;">
+                        <div class="age-result-card" style="border-left: 5px solid var(--primary); display: flex; align-items: center; justify-content: space-between; flex-direction: row; padding: 20px;">
+                            <div>
+                                <div class="age-val" id="wallet-balance-stat" style="color: var(--primary); -webkit-text-fill-color: var(--primary); font-size: 32px;">₹0.00</div>
+                                <div class="age-lbl" style="margin-top: 4px;">CSC Wallet Balance</div>
+                            </div>
+                            <div style="background: rgba(99, 102, 241, 0.1); color: var(--primary); width: 64px; height: 64px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="wallet" style="width: 32px; height: 32px;"></i>
+                            </div>
+                        </div>
+                        <div class="age-result-card" style="border-left: 5px solid var(--danger); display: flex; align-items: center; justify-content: space-between; flex-direction: row; padding: 20px;">
+                            <div>
+                                <div class="age-val" id="wallet-expense-stat" style="color: var(--danger); -webkit-text-fill-color: var(--danger); font-size: 32px;">₹0.00</div>
+                                <div class="age-lbl" style="margin-top: 4px;">Total Wallet Debits (Expenses)</div>
+                            </div>
+                            <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); width: 64px; height: 64px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="trending-down" style="width: 32px; height: 32px;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tool-layout">
+                        <!-- Load Money Form -->
+                        <div class="config-card">
+                            <h3>Load Money (Wallet Top-up)</h3>
+                            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Top up your CSC wallet balance by transferring money from your Cash or Bank account.</p>
+                            
+                            <div class="form-group">
+                                <label for="wallet-topup-amount">Top-up Amount (₹)</label>
+                                <input type="number" id="wallet-topup-amount" min="1" placeholder="E.g., 1000.00">
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="wallet-topup-date">Top-up Date</label>
+                                    <input type="date" id="wallet-topup-date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="wallet-topup-source">Source Account</label>
+                                    <select id="wallet-topup-source">
+                                        <option value="Cash">Cash (Cash in Hand)</option>
+                                        <option value="Bank Account">Bank Account (UPI/NetBanking)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="wallet-topup-desc">Notes / Reference (Optional)</label>
+                                <input type="text" id="wallet-topup-desc" placeholder="E.g., Top-up via GPay UPI Ref 12345">
+                            </div>
+
+                            <button class="btn-primary" id="wallet-topup-btn"><i data-lucide="plus-circle"></i> Load Money into Wallet</button>
+                        </div>
+
+                        <!-- Wallet Transaction History Table -->
+                        <div class="config-card" style="grid-column: span 1; overflow-x: auto;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                                <h3>Wallet Passbook (Statement)</h3>
+                                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                    <input type="text" id="search-wallet-input" placeholder="Search passbook..." style="width: 150px; padding: 6px 10px; font-size: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-main);">
+                                </div>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted);">
+                                        <th style="padding: 10px 5px;">Date</th>
+                                        <th style="padding: 10px 5px;">Type</th>
+                                        <th style="padding: 10px 5px;">Description</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Amount</th>
+                                        <th style="padding: 10px 5px; text-align: right;">Balance</th>
+                                        <th style="padding: 10px 5px; text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="wallet-table-body">
+                                    <!-- Dynamic wallet rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. REPORTS & STATEMENT HUB -->
+            <section class="tool-panel" id="panel-reports">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="bar-chart-3"></i> Reports & Statement Generator</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="tool-layout" style="grid-template-columns: 0.9fr 1.1fr; gap: 16px;">
+                    <div class="config-card" style="gap: 12px; padding: 16px;">
+                        <h3>1. Report Date Filters</h3>
+                        <div class="form-row" style="gap: 12px;">
+                            <div class="form-group">
+                                <label for="rep-start-date">Start Date</label>
+                                <input type="date" id="rep-start-date" style="padding: 8px 12px; font-size: 13px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="rep-end-date">End Date</label>
+                                <input type="date" id="rep-end-date" style="padding: 8px 12px; font-size: 13px;">
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button class="btn-secondary" id="btn-rep-today" style="padding: 5px 10px; font-size: 11px; width: auto;">Today</button>
+                            <button class="btn-secondary" id="btn-rep-week" style="padding: 5px 10px; font-size: 11px; width: auto;">Last 7 Days</button>
+                            <button class="btn-secondary" id="btn-rep-month" style="padding: 5px 10px; font-size: 11px; width: auto;">This Month</button>
+                            <button class="btn-secondary" id="btn-rep-all" style="padding: 5px 10px; font-size: 11px; width: auto;">All Time</button>
+                        </div>
+
+                        <h3 style="border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 2px;">2. Select Report Type</h3>
+                        <button class="btn-secondary" id="btn-rep-ledger" style="text-align: left; justify-content: start; font-weight: 600; width: 100%; padding: 10px 14px; font-size: 13px;"><i data-lucide="list-checks" style="color: var(--success); margin-right: 8px;"></i> Ledger Transaction Report</button>
+                        <button class="btn-secondary" id="btn-rep-dues" style="text-align: left; justify-content: start; font-weight: 600; width: 100%; padding: 10px 14px; font-size: 13px;"><i data-lucide="user-minus" style="color: var(--warning); margin-right: 8px;"></i> Pending Dues Statement</button>
+                        <button class="btn-secondary" id="btn-rep-pl" style="text-align: left; justify-content: start; font-weight: 600; width: 100%; padding: 10px 14px; font-size: 13px;"><i data-lucide="trending-up" style="color: var(--primary); margin-right: 8px;"></i> Center Profit & Loss (P&L)</button>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; overflow-y: auto; max-height: 380px; box-shadow: var(--shadow-md);">
+                            <div id="report-screen-view">
+                                <div style="text-align: center; color: var(--text-muted); padding: 40px 0;">
+                                    <i data-lucide="bar-chart-3" style="width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; display: inline-block;"></i>
+                                    <p>Select report type and date ranges to generate a printable business statement.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="print-report-btn" disabled><i data-lucide="printer"></i> Print Report / Save PDF</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. SERVICE MANAGEMENT TOOL PANEL -->
+            <section class="tool-panel" id="panel-services">
+                <div class="services-header-row">
+                    <h2 class="services-title">
+                        <i data-lucide="briefcase"></i> Service Management
+                    </h2>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-secondary" id="services-reset-btn" style="padding: 8px 16px; font-size: 13px; width: auto;"><i data-lucide="refresh-cw"></i> Reset Defaults</button>
+                        <button class="btn-primary add-service-btn-top" id="add-service-btn"><i data-lucide="plus"></i> Add Service</button>
+                    </div>
+                </div>
+
+                <div class="services-filter-row">
+                    <div class="category-pills" id="services-category-pills">
+                        <button class="category-pill active" data-category="all">All</button>
+                        <button class="category-pill" data-category="Government">Government</button>
+                        <button class="category-pill" data-category="Banking">Banking</button>
+                        <button class="category-pill" data-category="Insurance">Insurance</button>
+                        <button class="category-pill" data-category="Recharge">Recharge</button>
+                    </div>
+                    <div class="search-wrapper" style="max-width: 320px; position: relative;">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" class="search-input" id="search-services-input" placeholder="Search services...">
+                    </div>
+                </div>
+
+                <div class="services-grid-wrapper" id="services-cards-grid">
+                    <!-- Service cards rendered dynamically via JS -->
+                </div>
+            </section>
+
+            <!-- 11. STAFF MANAGEMENT TOOL PANEL -->
+            <section class="tool-panel" id="panel-staff">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="users"></i> Staff Management</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+                
+                <div class="tool-layout">
+                    <!-- Add Staff Form Card (Vertical Layout) -->
+                    <div class="config-card">
+                        <h3><i data-lucide="user-plus"></i> Add New Staff Member</h3>
+                        <form id="add-staff-form" style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px; width: 100%;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="staff-name">Staff Name</label>
+                                <input type="text" id="staff-name" placeholder="E.g., Ramesh Kumar" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="staff-mobile">Mobile Number</label>
+                                <input type="text" id="staff-mobile" placeholder="E.g., 9876543210" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="staff-pin">Security PIN (4 digits)</label>
+                                <input type="password" id="staff-pin" maxlength="4" placeholder="••••" required style="padding: 10px 14px; text-align: center; letter-spacing: 2px; width: 100%; box-sizing: border-box;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="staff-role">Role</label>
+                                <select id="staff-role" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                                    <option value="Staff">Staff User (Limited)</option>
+                                    <option value="Owner">Owner / Admin (Full)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary" style="height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; width: 100%;">
+                                <i data-lucide="user-plus" style="width: 18px; height: 18px;"></i> Create Account
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Staff Directory Table (Right column/spacious view) -->
+                    <div class="config-card" style="overflow-x: auto; justify-content: start;">
+                        <h3 style="margin-bottom: 16px;"><i data-lucide="contact"></i> Active Staff Directory</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted); font-weight: 700;">
+                                    <th style="padding: 12px 16px;">Staff Name</th>
+                                    <th style="padding: 12px 16px;">Role Badge</th>
+                                    <th style="padding: 12px 16px;">Mobile Number</th>
+                                    <th style="padding: 12px 16px; text-align: center;">PIN Security</th>
+                                    <th style="padding: 12px 16px; text-align: center;">Action Controls</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staff-table-body">
+                                <!-- Dynamic staff rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. SYSTEM ADMIN CONTROL PANEL -->
+            <section class="tool-panel" id="panel-admin">
+                <div class="panel-header">
+                    <h2 class="panel-title"><i data-lucide="settings"></i> Admin Control Center</h2>
+                    <button class="back-btn"><i data-lucide="chevron-left"></i> Back to Dashboard</button>
+                </div>
+
+                <!-- Admin KPI Cards Row -->
+                <div class="age-result-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 0; margin-bottom: 24px; gap: 16px;">
+                    <div class="age-result-card" style="border-left: 5px solid var(--primary); padding: 16px; display: flex; flex-direction: column; align-items: start; gap: 8px;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Users</span>
+                        <div class="age-val" id="admin-stat-users" style="font-size: 28px; color: var(--primary); -webkit-text-fill-color: var(--primary);">0</div>
+                    </div>
+                    <div class="age-result-card" style="border-left: 5px solid var(--success); padding: 16px; display: flex; flex-direction: column; align-items: start; gap: 8px;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Staff Accounts</span>
+                        <div class="age-val" id="admin-stat-staff" style="font-size: 28px; color: var(--success); -webkit-text-fill-color: var(--success);">0</div>
+                    </div>
+                    <div class="age-result-card" style="border-left: 5px solid var(--warning); padding: 16px; display: flex; flex-direction: column; align-items: start; gap: 8px;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Customers</span>
+                        <div class="age-val" id="admin-stat-customers" style="font-size: 28px; color: var(--warning); -webkit-text-fill-color: var(--warning);">0</div>
+                    </div>
+                    <div class="age-result-card" style="border-left: 5px solid var(--danger); padding: 16px; display: flex; flex-direction: column; align-items: start; gap: 8px;">
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Net Ledger Balance</span>
+                        <div class="age-val" id="admin-stat-balance" style="font-size: 28px; color: var(--accent); -webkit-text-fill-color: var(--accent);">₹0.00</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="form-tabs" style="margin-bottom: 20px;">
+                    <button class="form-tab active" id="admin-tab-users-btn">👥 User Database Manager</button>
+                    <button class="form-tab" id="admin-tab-backup-btn">🔧 Maintenance & Backups</button>
+                    <button class="form-tab" id="admin-tab-tenants-btn" style="display: none;">🌐 Platform Retailers (SaaS)</button>
+                </div>
+
+                <!-- TAB 1: User & Database Manager -->
+                <div class="tab-content" id="admin-tab-users" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="config-card" style="overflow-x: auto; width: 100%; box-sizing: border-box; justify-content: start;">
+                        <h3 style="margin-bottom: 16px;"><i data-lucide="users"></i> Global User Directory</h3>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted); font-weight: 700;">
+                                    <th style="padding: 12px 16px;">User Name</th>
+                                    <th style="padding: 12px 16px;">Role Badge</th>
+                                    <th style="padding: 12px 16px;">Gmail Address</th>
+                                    <th style="padding: 12px 16px;">Mobile Number</th>
+                                    <th style="padding: 12px 16px; text-align: center;">PIN Password</th>
+                                    <th style="padding: 12px 16px; text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table-body">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB 2: Maintenance & Backups -->
+                <div class="tab-content" id="admin-tab-backup" style="display: none; flex-direction: column; gap: 20px;">
+                    <div class="tool-layout">
+                        <!-- Backup Card -->
+                        <div class="config-card">
+                            <h3><i data-lucide="download"></i> Backup Local Database</h3>
+                            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">Export all local bookkeeping data, transactions, customer profiles, custom rates, and registration details as a single encrypted JSON backup file. Keep this file safe to restore your data anytime.</p>
+                            <button class="btn-primary" id="btn-admin-export" style="width: 100%; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <i data-lucide="file-down"></i> Export Database (JSON Backup)
+                            </button>
+                        </div>
+
+                        <!-- Restore Card -->
+                        <div class="config-card">
+                            <h3><i data-lucide="upload"></i> Restore Database Backup</h3>
+                            <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">Select a previously exported SmartSpe `.json` backup file to restore all bookkeeping ledgers, customers, and user databases. <strong style="color: var(--accent);">Warning: This will overwrite current data.</strong></p>
+                            
+                            <input type="file" id="admin-restore-file-input" accept=".json" style="display: none;">
+                            <button class="btn-secondary" id="btn-admin-restore-trigger" style="width: 100%; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                                <i data-lucide="file-up"></i> Select Backup JSON File
+                            </button>
+                            <span id="admin-restore-file-name" style="font-size: 12px; color: var(--success); text-align: center; display: block; font-weight: 600;">No file selected</span>
+                            <button class="btn-primary" id="btn-admin-restore-confirm" disabled style="width: 100%; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px; background: var(--success-gradient);">
+                                <i data-lucide="check-circle-2"></i> Confirm & Import Backup
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Factory Reset Card -->
+                    <div class="config-card" style="border: 1px solid rgba(244, 63, 94, 0.2); background: rgba(244, 63, 94, 0.02);">
+                        <h3 style="color: var(--accent);"><i data-lucide="trash-2"></i> Danger Zone: Factory Reset</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">This action will permanently wipe all local database registries, customer sheets, cash ledger logs, wallet topups, and session records, resetting the application to its original clean state.</p>
+                        <button class="btn-primary" id="btn-admin-factory-reset" style="background: var(--danger-gradient); border-color: transparent; width: auto; padding: 10px 24px;">
+                            <i data-lucide="alert-triangle"></i> Reset to Default Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- TAB 3: Platform Retailers (SaaS Controls) -->
+                <div class="tab-content" id="admin-tab-tenants" style="display: none; flex-direction: column; gap: 20px;">
+                    <div class="config-card" style="overflow-x: auto; width: 100%; box-sizing: border-box; justify-content: start;">
+                        <h3 style="margin-bottom: 8px;"><i data-lucide="globe"></i> Registered Platform Retailers</h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Manage registered CSC shops, track their signup details, and remotely suspend or restore their platform access licenses.</p>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted); font-weight: 700;">
+                                    <th style="padding: 12px 16px;">Owner Name</th>
+                                    <th style="padding: 12px 16px;">Shop Name</th>
+                                    <th style="padding: 12px 16px;">Gmail / Contact</th>
+                                    <th style="padding: 12px 16px;">Mobile</th>
+                                    <th style="padding: 12px 16px; text-align: center;">Joined Date</th>
+                                    <th style="padding: 12px 16px; text-align: center;">Status</th>
+                                    <th style="padding: 12px 16px; text-align: center;">License Control</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-tenants-table-body">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">Connecting to central cloud registry...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Add / Edit Service Pop-up Modal -->
+    <div class="modal-overlay" id="service-modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title" id="service-modal-title">Add New Service</h3>
+                <button class="modal-close-btn" id="service-modal-close">&times;</button>
+            </div>
+            <form id="service-modal-form">
+                <input type="hidden" id="service-edit-id">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="modal-service-name">Service Name</label>
+                        <input type="text" id="modal-service-name" placeholder="E.g., PAN Card Correction" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modal-service-category">Category</label>
+                        <select id="modal-service-category" required>
+                            <option value="Government">Government</option>
+                            <option value="Banking">Banking</option>
+                            <option value="Insurance">Insurance</option>
+                            <option value="Recharge">Recharge</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="modal-govt-fee">Govt Portal Fee (₹)</label>
+                            <input type="number" id="modal-govt-fee" min="0" placeholder="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-cust-fee">Customer Fee (₹)</label>
+                            <input type="number" id="modal-cust-fee" min="0" placeholder="0" value="0">
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(99, 102, 241, 0.05); padding: 12px; border-radius: var(--radius-sm); border: 1px solid rgba(99, 102, 241, 0.1); margin-top: 4px;">
+                        <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">Calculated VLE Commission:</span>
+                        <strong id="modal-commission-lbl" style="font-size: 16px; color: var(--success);">₹0.00</strong>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="service-modal-cancel" style="padding: 10px 20px;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="padding: 10px 20px;">Save Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Session Authentication / Role Switch Overlay -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-card" id="auth-login-card">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="logo.png" style="width: 120px; height: 120px; object-fit: contain; border-radius: var(--radius-md); background: white; padding: 8px; box-shadow: var(--shadow-sm); display: inline-block;">
+            </div>
+            <h2>SmartSpe</h2>
+            <p class="auth-subtitle">Secure Access Control Panel</p>
+            
+            <div class="auth-role-select">
+                <button type="button" class="role-btn active" data-role="Owner" id="btn-role-owner">
+                    <i data-lucide="crown"></i>
+                    <span>Owner / Admin</span>
+                </button>
+                <button type="button" class="role-btn" data-role="Staff" id="btn-role-staff">
+                    <i data-lucide="users"></i>
+                    <span>Staff User</span>
+                </button>
+            </div>
+            
+            <div class="auth-pin-section">
+                <label for="auth-pin-input">Enter Security PIN</label>
+                <div class="pin-input-container">
+                    <input type="password" id="auth-pin-input" maxlength="6" placeholder="••••" autocomplete="off" style="text-align: center; letter-spacing: 6px; font-size: 20px;">
+                </div>
+                <div id="auth-error-msg" class="auth-error-msg" style="display: none; color: var(--accent); font-size: 13px; font-weight: 600; text-align: center; margin-top: 8px;">Incorrect PIN. Please try again.</div>
+            </div>
+            
+            <button type="button" class="btn-primary" id="auth-login-btn" style="margin-top: 16px;">
+                <i data-lucide="key-round"></i>
+                Unlock Dashboard
+            </button>
+            <button type="button" class="btn-secondary" id="auth-gmail-login-toggle-btn" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                <i data-lucide="mail"></i>
+                Login with Gmail / OTP
+            </button>
+            <div style="margin-top: 20px; text-align: center; font-size: 13px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <span style="color: var(--text-muted);">New VLE Partner?</span>
+                <a href="#" id="auth-toggle-signup" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 5px; transition: var(--transition);">Register & Setup Profile</a>
+            </div>
+        </div>
+
+        <!-- Gmail Login Card -->
+        <div class="auth-card" id="auth-gmail-card" style="display: none; max-width: 420px; width: 100%; box-sizing: border-box;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img src="logo.png" style="width: 120px; height: 120px; object-fit: contain; border-radius: var(--radius-md); background: white; padding: 8px; box-shadow: var(--shadow-sm); display: inline-block;">
+            </div>
+            <h2>Gmail Login</h2>
+            <p class="auth-subtitle">Verify Identity with Gmail OTP</p>
+            
+            <!-- Gmail step 1: Enter email -->
+            <div id="gmail-login-step-1" style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="gmail-login-email">Gmail Address</label>
+                    <input type="email" id="gmail-login-email" placeholder="aarav.csc@gmail.com" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="gmail-login-role">Select Role</label>
+                    <select id="gmail-login-role" style="padding: 10px 14px; width: 100%; box-sizing: border-box; background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+                        <option value="Owner">Owner / Admin</option>
+                        <option value="Staff">Staff User</option>
+                    </select>
+                </div>
+                
+                <button type="button" class="btn-primary" id="btn-gmail-send-otp" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="send"></i>
+                    Send Verification OTP
+                </button>
+                <div style="text-align: center; font-size: 13px; margin-top: 8px;">
+                    <a href="#" class="auth-toggle-to-pin" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: var(--transition);">Or Login with Security PIN</a>
+                </div>
+            </div>
+
+            <!-- Gmail step 2: Enter OTP -->
+            <div id="gmail-login-step-2" style="display: none; flex-direction: column; gap: 14px; margin-top: 10px; text-align: center;">
+                <div class="auth-icon-wrapper" style="margin: 0 auto 10px auto; background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <h3>Enter 6-Digit OTP</h3>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0;">A 6-digit verification code has been sent to your email. Please check your simulated mailbox notification and enter it below.</p>
+                
+                <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+                    <input type="text" id="gmail-login-otp-input" maxlength="6" placeholder="000000" style="text-align: center; font-size: 24px; font-weight: 800; letter-spacing: 8px; padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                </div>
+                <div id="gmail-login-error-msg" style="display: none; color: var(--accent); font-size: 13px; font-weight: 600; margin-top: 8px;">Incorrect OTP. Please try again.</div>
+                
+                <button type="button" class="btn-primary" id="btn-gmail-verify-otp" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="lock-open"></i>
+                    Verify & Unlock Dashboard
+                </button>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px;">
+                    <a href="#" id="btn-gmail-resend" style="color: var(--text-muted); font-weight: 600; text-decoration: none;">Resend OTP</a>
+                    <a href="#" class="auth-toggle-to-pin" style="color: var(--primary); font-weight: 600; text-decoration: none;">Back to PIN Login</a>
+                </div>
+            </div>
+
+        <!-- Signup Onboarding Wizard Card -->
+        <div class="auth-card signup-wizard-card" id="signup-wizard-card" style="display: none; max-width: 500px; width: 100%; box-sizing: border-box;">
+            <div class="wizard-header" style="text-align: center; margin-bottom: 20px;">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <img src="logo.png" style="width: 100px; height: 100px; object-fit: contain; border-radius: var(--radius-md); background: white; padding: 6px; box-shadow: var(--shadow-sm); display: inline-block;">
+                </div>
+                <h2>VLE Registration</h2>
+                <p class="auth-subtitle">Setup your SmartSpe account</p>
+                <!-- Progress Step Indicator -->
+                <div class="wizard-steps-indicator" style="display: flex; justify-content: center; gap: 8px; margin-top: 16px; position: relative;">
+                    <div class="wizard-step active" data-step="1" title="Account" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--primary-gradient); color: white; border: 2px solid var(--primary); z-index: 2; cursor: default;">1</div>
+                    <div class="wizard-step" data-step="2" title="Verify" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--bg-secondary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 2; cursor: default;">2</div>
+                    <div class="wizard-step" data-step="3" title="Profile" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--bg-secondary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 2; cursor: default;">3</div>
+                    <div class="wizard-step" data-step="4" title="Welcome" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: var(--bg-secondary); color: var(--text-muted); border: 2px solid var(--border-color); z-index: 2; cursor: default;">4</div>
+                </div>
+            </div>
+
+            <!-- STEP 1: Account Info (Name, Mobile, Email only) -->
+            <div class="wizard-step-content active" id="signup-step-1">
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="signup-name">Full Name</label>
+                        <input type="text" id="signup-name" placeholder="E.g., Aarav Sharma" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="signup-mobile">Mobile Number</label>
+                        <input type="text" id="signup-mobile" placeholder="E.g., 9876543210" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" placeholder="E.g., aarav.csc@gmail.com" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <button type="button" class="btn-primary" id="btn-signup-next-1" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        Get Password PIN <i data-lucide="arrow-right"></i>
+                    </button>
+                    <div style="text-align: center; font-size: 13px; margin-top: 8px; color: var(--text-muted);">
+                        Already registered? <a href="#" id="auth-toggle-login" style="color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px;">Log In</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Email Verification / Password Input -->
+            <div class="wizard-step-content" id="signup-step-2" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px; text-align: center;">
+                    <div class="auth-icon-wrapper" style="margin: 0 auto 10px auto; background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                        <i data-lucide="mail"></i>
+                    </div>
+                    <h3>Verify Password PIN</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin: 0;">We've sent a simulated email containing your new 4-digit Security Password PIN to your address. Please check your simulated inbox notification and enter it below.</p>
+                    
+                    <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+                        <label for="signup-pin-input">Enter 4-Digit Password PIN</label>
+                        <input type="password" id="signup-pin-input" maxlength="4" placeholder="••••" autocomplete="off" style="text-align: center; letter-spacing: 8px; font-size: 24px; padding: 10px; width: 100%; max-width: 200px; margin: 0 auto; box-sizing: border-box; display: block;">
+                        <div id="signup-pin-error" style="display: none; color: var(--accent); font-size: 13px; font-weight: 600; margin-top: 8px;">Incorrect Password PIN. Please try again.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 15px;">
+                        <button type="button" class="btn-secondary" id="btn-signup-back-2" style="width: 40%; display: flex; align-items: center; justify-content: center; gap: 8px;"><i data-lucide="arrow-left"></i> Back</button>
+                        <button type="button" class="btn-primary" id="btn-signup-next-2" style="width: 60%; display: flex; align-items: center; justify-content: center; gap: 8px;">Verify PIN <i data-lucide="shield-check"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Create Business Profile -->
+            <div class="wizard-step-content" id="signup-step-3" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                        <div class="profile-avatar-wrapper" style="width: 64px; height: 64px; position: relative;">
+                            <img id="signup-profile-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
+                            <label for="signup-photo-upload" style="width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--primary-gradient); color: white; cursor: pointer; position: absolute; bottom: 0; right: 0; border: 1.5px solid var(--bg-secondary);">
+                                <i data-lucide="camera" style="width: 10px; height: 10px;"></i>
+                            </label>
+                            <input type="file" id="signup-photo-upload" accept="image/*" style="display: none;">
+                        </div>
+                        <div>
+                            <h4 style="font-size: 14px; font-weight: 700; margin: 0; color: var(--text-main);">Add Profile Photo</h4>
+                            <p style="font-size: 11px; color: var(--text-muted); margin: 2px 0 0 0;">Upload store profile picture</p>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="signup-shop">Shop Name</label>
+                        <input type="text" id="signup-shop" placeholder="E.g., Aarav Digital Center" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="signup-address">Shop Address</label>
+                        <input type="text" id="signup-address" placeholder="E.g., Main Market, Jaipur, Rajasthan" required style="padding: 10px 14px; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 10px;">
+                        <button type="button" class="btn-secondary" id="btn-signup-back-3" style="width: 40%; display: flex; align-items: center; justify-content: center; gap: 8px;"><i data-lucide="arrow-left"></i> Back</button>
+                        <button type="button" class="btn-primary" id="btn-signup-next-3" style="width: 60%; display: flex; align-items: center; justify-content: center; gap: 8px;">Save & Continue <i data-lucide="arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: Welcome Email Visual -->
+            <div class="wizard-step-content" id="signup-step-4" style="display: none;">
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    <!-- Premium visual email card -->
+                    <div class="mock-email-container" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; font-family: inherit; font-size: 13px; line-height: 1.5; color: var(--text-main); max-height: 280px; overflow-y: auto;">
+                        <div style="border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-weight: 700; color: var(--primary);">📧 SmartSpe Welcome Letter</span>
+                            <span style="font-size: 11px; color: var(--text-muted);">Inbox</span>
+                        </div>
+                        <p>Dear <strong id="welcome-email-name">Aarav Sharma</strong>,</p>
+                        <p style="margin-top: 8px;">Congratulations! Your center <strong id="welcome-email-shop">Aarav Digital Center</strong> has been successfully onboarded onto <strong>SmartSpe</strong>.</p>
+                        <p style="margin-top: 8px;">Here are your security credentials. Keep them private and secure:</p>
+                        <div style="background: rgba(99, 102, 241, 0.08); border: 1px dashed var(--primary); padding: 10px; border-radius: var(--radius-sm); margin: 10px 0; text-align: center;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Your Authentication PIN</div>
+                            <div style="font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 4px; letter-spacing: 2px;" id="welcome-email-pin">5892</div>
+                        </div>
+                        <p style="margin-top: 8px;">You can now unlock your dashboard, crop Aadhaar cards, resize photos/signatures, log ledgers, and manage wallet credits securely.</p>
+                        <p style="margin-top: 12px; border-top: 1px solid var(--border-color); padding-top: 10px; color: var(--text-muted); font-size: 11px;">Best Regards,<br>SmartSpe Team</p>
+                    </div>
+                    
+                    <button type="button" class="btn-primary" id="btn-signup-complete" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        Unlock Dashboard <i data-lucide="unlock"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Success Loading Screen -->
+            <div class="wizard-step-content" id="signup-step-5" style="display: none;">
+                <div style="text-align: center; padding: 30px 10px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                    <div class="success-checkmark-wrapper" style="width: 72px; height: 72px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); color: var(--success); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="check-circle-2" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <h3 style="margin: 0; color: var(--text-main);">Creating VLE Account...</h3>
+                    <p style="font-size: 13px; color: var(--text-muted); max-width: 260px; line-height: 1.5; margin: 0;">Configuring security databases and loading digital partner resources.</p>
+                    <!-- Progress bar spinner -->
+                    <div class="signup-progress-bar" style="width: 100%; max-width: 200px; height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-full); overflow: hidden; margin-top: 10px;">
+                        <div id="signup-progress-fill" style="width: 0%; height: 100%; background: var(--primary-gradient); border-radius: var(--radius-full); transition: width 1.5s ease-in-out;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Backdrop Overlay for Mobile Drawer -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Floating Quick Action Button (FAB) -->
+    <div class="fab-container">
+        <button class="fab-btn" id="fab-btn" title="Quick Entry Console">
+            <i data-lucide="zap"></i>
+        </button>
+    </div>
+
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav class="bottom-nav">
+        <button class="bottom-nav-item active" data-target="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Home</span>
+        </button>
+        <button class="bottom-nav-item" data-target="csp">
+            <i data-lucide="wallet"></i>
+            <span>Ledger</span>
+        </button>
+        <button class="bottom-nav-item" data-target="recharge">
+            <i data-lucide="smartphone"></i>
+            <span>Recharge</span>
+        </button>
+        <button class="bottom-nav-item" data-target="services">
+            <i data-lucide="briefcase"></i>
+            <span>Services</span>
+        </button>
+        <button class="bottom-nav-item" id="bottom-menu-toggle">
+            <i data-lucide="menu"></i>
+            <span>Menu</span>
+        </button>
+    </nav>
+
+    <!-- Quick Entry Bottom Sheet Modal -->
+    <div class="quick-modal-backdrop" id="quick-modal-backdrop">
+        <div class="quick-modal-container">
+            <div class="quick-modal-header">
+                <span class="quick-modal-title">⚡ Quick Entry Console</span>
+                <button class="quick-modal-close" id="quick-modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="quick-modal-body" id="quick-modal-body">
+                <!-- Quick Entry Panel will be moved here on mobile -->
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Hidden Printable Area (shown only during print layouts) -->
+    <div id="printable-area"></div>
+
+    <!-- Mock Email Notification Widget (slides in when password is sent) -->
+    <div class="mock-email-notification" id="mock-email-notification" style="position: fixed; bottom: 20px; right: 20px; z-index: 99999; background: var(--bg-secondary); border: 1px solid var(--primary); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); width: 320px; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; transform: translateX(340px); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; pointer-events: none;">
+        <div class="mock-email-header" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="mock-email-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i data-lucide="mail" style="width: 14px; height: 14px;"></i></div>
+                <div>
+                    <div style="font-weight: 700; font-size: 12px; color: var(--text-main);">📧 Simulated Mailbox</div>
+                    <div style="font-size: 10px; color: var(--text-muted);" id="mock-email-sender">From: SmartSpe Support &lt;help@smartspe.in&gt;</div>
+
+                </div>
+            </div>
+            <button class="mock-email-close-btn" onclick="document.getElementById('mock-email-notification').style.transform = 'translateX(340px)'; document.getElementById('mock-email-notification').style.opacity = '0';" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 2px; border-radius: var(--radius-sm);">
+                <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+            </button>
+        </div>
+        <div class="mock-email-body" style="font-size: 12px; line-height: 1.5; color: var(--text-main); margin-top: 4px;">
+            <p style="margin: 0;">Hello <strong id="mock-email-user-name">VLE</strong>, your auto-generated SmartSpe Password PIN is: <strong id="mock-email-pin-value" style="font-size: 14px; color: var(--success); font-family: monospace; font-weight: 800; background: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: var(--radius-sm);">0000</strong></p>
+        </div>
+    </div>
+
+    <!-- Firebase SDks (Compat version for simple vanilla JS integration) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <!-- JS Scripts -->
+    <script src="app.js?v=9"></script>
+    <script src="js/aadhaar-cropper.js"></script>
+    <script src="js/biodata-builder.js"></script>
+    <script src="js/csp-ledger.js?v=3"></script>
+    <script src="js/csp-reports.js"></script>
+</body>
+</html>
